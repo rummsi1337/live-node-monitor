@@ -1,8 +1,12 @@
+import glob
 import json
 import re
-import time
-from dataclasses import dataclass
-from typing import Iterator, List, Optional
+from typing import Iterator, Optional
+from typing_extensions import Annotated
+from pydantic import AfterValidator, BaseModel, ConfigDict
+import yaml
+import asyncio
+from aiofile import async_open
 
 
 class EventParser:
@@ -22,59 +26,74 @@ class EventParser:
         raise NotImplementedError("abstract base class")
 
 
-class ErrorEventParser(EventParser):
-    def __init__(self) -> None:
-        name = "err_line_event"
-        regex_matchers = [
-            r"^(?P<timestamp>.+) \| (?P<level>ERROR|CRITICAL): (?P<message>.+)$",  # Match with timestamp
-            r"(?P<level>ERROR|CRITICAL): (?P<message>.+)$",  # Match if timestamp does not exist in log
-        ]
+class LogEventParser(EventParser):
+    def __init__(self, name: str, regex_matchers: list) -> None:
         super().__init__(name, regex_matchers)
 
-    def _parse(self, match: re.Match) -> dict:
-        return match.groupdict()
-
-
-class LoggedEventParser(EventParser):
-    def __init__(self) -> None:
-        name = "log_line_event"
-        regex_matchers = [
-            r"^(?P<timestamp>.+) \| \[(?P<event>.+-event)\] (?P<content>.*)",  # Match with timestamp
-            r"\[(?P<event>.+-event)\] (?P<content>.*)",  # Match if timestamp does not exist in log
-        ]
-        super().__init__(name, regex_matchers)
+    def _parse_json_group(self, json_string: str) -> dict:
+        return json.loads(json_string)
 
     def _parse(self, match: re.Match) -> dict:
-        result = match.groupdict()
-        event = result["event"]
-        content = result["content"]
+        """Parse lines using events defined in log_monitor_config.
+        Each parsed event contains the matched line, pattern and all named groups.
+        Some special named groups trigger further parsing inside the matched group.
+        In addition to the named group, also the contents of the parsed groups are returned.
+        Special named groups:
+          - json: Parses the content of the named group as json.
 
-        if event == "SMRT-event":
-            return f"SMRT: {content}"
+        Args:
+            match (re.Match): the matched object.
 
-        elif event == "STP-event":
-            return f"STP: {content}"
+        Returns:
+            dict: A dict containing the matched line, pattern and all named groups inlcuding parsed special groups.
+        """
+        named_groups = match.groupdict()
 
-        # TODO: JSON-event does not make sense. The event name should reference the type of event, not how to parse it
-        elif event == "JSON-event":
-            return json.loads(content)
+        if json_str := named_groups.get("json"):
+            named_groups.update(self._parse_json_group(json_str))
+            named_groups.pop("json", None)
 
-        else:
-            return content
+        named_groups.update({"line": match.string, "pattern": match.re.pattern})
+
+        return named_groups
+
+
+class LogMonitorEvent(BaseModel):
+    name: str
+    regexes: list[str]
+    model_config = ConfigDict(extra="forbid")
+
+
+class LogMonitorConfig(BaseModel):
+    path: str
+    events: list[LogMonitorEvent]
+    model_config = ConfigDict(extra="forbid")
+
+
+class LogMonitorConfigs(BaseModel):
+    log_configs: list[LogMonitorConfig]
+    model_config = ConfigDict(extra="forbid")
+
+
+def read_config() -> LogMonitorConfigs:
+    with open(
+        "/workspaces/live-node-monitor/src/components/log_monitor_config.yaml", "r"
+    ) as file:
+        yaml_dict = yaml.safe_load(file)
+        return LogMonitorConfigs(**yaml_dict)
 
 
 class LogMonitor:
-    def __init__(self, log_file_path: str) -> None:
+    def __init__(self, log_file_path: str, log_events: list[LogMonitorEvent]) -> None:
         self.log_file_path = log_file_path
-        self.line_event_parsers = [
-            ErrorEventParser(),
-            LoggedEventParser(),
-        ]
+        self.event_parsers = []
+        for event in log_events:
+            self.event_parsers.append(LogEventParser(event.name, event.regexes))
 
-    def start_monitoring(self):
-        with open(self.log_file_path, "r") as logfile:
+    async def start_monitoring(self):
+        async with async_open(self.log_file_path, "r") as logfile:
             loglines = self._follow(logfile)
-            for line in loglines:
+            async for line in loglines:
                 parsed_line = self._retrieve_line_event(line)
                 if parsed_line:
                     # TODO: Send each parsed line event to the api service
@@ -85,25 +104,37 @@ class LogMonitor:
         Find line events and parse corresponding log line.
         Return dict of line event if found, otherwise None
         """
-        for parser in self.line_event_parsers:
+        for parser in self.event_parsers:
             if result := parser.parse_line(line):
                 return result
         return None
 
     @staticmethod
-    def _follow(file, sleep_timeout=0.1) -> Iterator[str]:
+    async def _follow(file, sleep_timeout=0.1) -> Iterator[str]:
         line = ""
         while True:
-            tmp_line = file.readline()
+            tmp_line = await file.readline()
             if tmp_line:
                 line += tmp_line
                 if line.endswith("\n"):
                     yield line
                     line = ""
             else:
-                time.sleep(sleep_timeout)
+                await asyncio.sleep(sleep_timeout)
+
+
+async def start_monitors(log_monitors: list[LogMonitor]):
+    tasks = []
+    for monitor in log_monitors:
+        tasks.append(asyncio.create_task(monitor.start_monitoring()))
+
+    await asyncio.gather(*tasks)
 
 
 if __name__ == "__main__":
-    log_monitor = LogMonitor("/workspaces/live-node-monitor/test_log.txt")
-    log_monitor.start_monitoring()
+    configs = read_config()
+    log_monitors = []
+    for config in configs.log_configs:
+        for path in glob.glob(config.path):
+            log_monitors.append(LogMonitor(path, config.events))
+    asyncio.run(start_monitors(log_monitors))

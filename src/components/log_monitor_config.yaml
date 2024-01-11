@@ -1,0 +1,16 @@
+
+log_configs:
+  - path: /workspaces/live-node-monitor/zuul-logs/*.log
+    events:
+      - name: "smrt_event"
+        regexes:
+          - '\[SMRT\] (?P<content>.*)'
+      - name: "bazel_actions"
+        regexes: 
+          - '\d+ actions executed. \d+ remote \d+ local'  # What if a bazel execution does not have "remote" actions? Can a regex group be optional?
+      - name: "error_event"
+        regexes: 
+          - '(?P<level>ERROR|CRITICAL): (?P<message>.+)$'
+      - name: "some_json_line"
+        regexes: 
+          - 'json: (?P<json>\{.+:.+\})'
