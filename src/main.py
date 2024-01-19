@@ -1,5 +1,3 @@
-
-
 from components.log_monitor.monitor import run_log_monitor
 
 

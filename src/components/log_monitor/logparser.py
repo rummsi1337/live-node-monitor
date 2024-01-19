@@ -2,6 +2,7 @@ import json
 import re
 from typing import Optional
 
+
 class EventParser:
     def __init__(self, name: str, regex_matchers: list) -> None:
         self.name = name
