@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
+
 class LogMonitorEvent(BaseModel):
     name: str
     regexes: list[str]

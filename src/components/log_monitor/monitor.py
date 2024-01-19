@@ -54,6 +54,7 @@ async def start_monitors(log_monitors: list[LogMonitor]):
 
     await asyncio.gather(*tasks)
 
+
 def run_log_monitor(config_path: str):
     configs = read_config(config_path)
     log_monitors = []
