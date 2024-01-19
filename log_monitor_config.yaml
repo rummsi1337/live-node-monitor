@@ -1,4 +1,4 @@
-
+# yamllint disable rule:line-length
 log_configs:
   - path: /workspaces/live-node-monitor/zuul-logs/*.log
     events:
@@ -6,11 +6,11 @@ log_configs:
         regexes:
           - '\[SMRT\] (?P<content>.*)'
       - name: "bazel_actions"
-        regexes: 
+        regexes:
           - '\d+ actions executed. \d+ remote \d+ local'  # What if a bazel execution does not have "remote" actions? Can a regex group be optional?
       - name: "error_event"
-        regexes: 
+        regexes:
           - '(?P<level>ERROR|CRITICAL): (?P<message>.+)$'
       - name: "some_json_line"
-        regexes: 
+        regexes:
           - 'json: (?P<json>\{.+:.+\})'
