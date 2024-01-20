@@ -23,7 +23,8 @@ RUN DEBIAN_FRONTEND=noninteractive \
         libxml2-dev \
         libxmlsec1-dev \
         libffi-dev \
-        liblzma-dev
+        liblzma-dev \
+        direnv
 
 # Python and poetry installation
 USER $USER
@@ -42,4 +43,6 @@ RUN echo "done 0" \
     && pyenv global ${PYTHON_VERSION} \
     && echo "done 3" \
     && curl -sSL https://install.python-poetry.org | python3 - \
-    && poetry config virtualenvs.in-project true
+    && poetry config virtualenvs.in-project true \
+    && echo "done 4" \
+    && echo 'eval "$(direnv hook bash)"' >> ~/.bashrc
