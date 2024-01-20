@@ -1,0 +1,3 @@
+export ES_HOST=""
+export ES_USERNAME=""
+export ES_PASSWORD=""
