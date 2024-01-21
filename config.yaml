@@ -35,18 +35,17 @@ cmd_configs:
   # TODO: Path and events might not be needed here, as this is not reacting to events
   # But how to generalize configs so that they are similar?
   - events:
-    - name: vmstat-oom
-      command: "ls -la"
-      targets:
-        - name: elasticsearch
-          config:
-            index: "cmd_monitor_vmstat"
-    - name: ls la
-      command: "ls -la"
-      repeat: 15.0
-      chdir: "/tmp"
-      targets:
-        - name: elasticsearch
-          config:
-            index: "cmd_monitor_ls"
-
+      - name: vmstat-oom
+        command: "ls -la"
+        targets:
+          - name: elasticsearch
+            config:
+              index: "cmd_monitor_vmstat"
+      - name: ls la
+        command: "ls -la"
+        repeat: 15.0
+        chdir: "/tmp"
+        targets:
+          - name: elasticsearch
+            config:
+              index: "cmd_monitor_ls"
