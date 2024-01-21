@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any
+from typing import Any, Optional
 from pydantic import BaseModel, ConfigDict, PrivateAttr
 
 from components.log_monitor.logparser import LogEventParser
@@ -36,6 +36,21 @@ class LogMonitorConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-class LogMonitorConfigs(BaseModel):
+class CmdMonitorEvent(BaseModel):
+    name: str
+    command: str
+    targets: list[Target]
+    repeat: Optional[float] = None
+    chdir: Optional[str] = None
+    model_config = ConfigDict(extra="forbid")
+
+
+class CmdMonitorConfig(BaseModel):
+    events: list[CmdMonitorEvent]
+    model_config = ConfigDict(extra="forbid")
+
+
+class MonitorConfigs(BaseModel):
     log_configs: list[LogMonitorConfig]
+    cmd_configs: list[CmdMonitorConfig]
     model_config = ConfigDict(extra="forbid")
