@@ -14,9 +14,9 @@ class LogMonitor(BaseMonitor):
         log_events: list[LogMonitorEvent],
         es: AsyncElasticsearch,
     ) -> None:
+        super().__init__(es)
         self.log_file_path = log_file_path
         self.events = log_events
-        self.es = es
 
     async def start_monitoring(self):
         async with async_open(self.log_file_path, "r") as logfile:
@@ -44,17 +44,6 @@ class LogMonitor(BaseMonitor):
                 await self._save_data(result, event.targets)
                 return result
         return None
-
-    async def _save_data(self, data: dict, targets: list[Target]):
-        for target in targets:
-            if target.name == TargetType.ELASTICSEARCH:
-                response = await self._save_data_es(data, target.config)
-                print(response)
-
-    async def _save_data_es(self, data: dict, config: dict):
-        # TODO: sending documents individually or sending them in bulk?
-        # Can the mechanism be rebuilt to use https://elasticsearch-py.readthedocs.io/en/v8.12.0/async.html#bulk-and-streaming-bulk
-        return await self.es.index(index=config["index"], document=data)
 
     @staticmethod
     async def _follow(file, sleep_timeout=0.1) -> Iterator[str]:

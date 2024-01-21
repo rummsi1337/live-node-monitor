@@ -8,8 +8,8 @@ from model import CmdMonitorEvent
 
 class CommandMonitor(BaseMonitor):
     def __init__(self, event: CmdMonitorEvent, es: AsyncElasticsearch) -> None:
+        super().__init__(es)
         self.event = event
-        self.es = es
 
     async def start_monitoring(self):
         while True:
