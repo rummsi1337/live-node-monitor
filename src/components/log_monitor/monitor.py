@@ -1,14 +1,13 @@
 from typing import Iterator, Optional
 import asyncio
 from aiofile import async_open
-import glob
 
 from elasticsearch import AsyncElasticsearch
-from components.log_monitor.utils import read_config
-from components.log_monitor.model import LogMonitorEvent, Target, TargetType
+from components.base.base_monitor import BaseMonitor
+from model import LogMonitorEvent, Target, TargetType
 
 
-class LogMonitor:
+class LogMonitor(BaseMonitor):
     def __init__(
         self,
         log_file_path: str,
@@ -30,6 +29,10 @@ class LogMonitor:
                 except Exception as e:
                     # TODO: proper exception handling. Make sure the parser can continue but properly logs the errors.
                     print(e)
+
+    def stop_monitoring(self) -> None:
+        # TODO: stop monitoring
+        pass
 
     async def _retrieve_line_event(self, line: str) -> Optional[dict]:
         """
@@ -65,20 +68,3 @@ class LogMonitor:
                     line = ""
             else:
                 await asyncio.sleep(sleep_timeout)
-
-
-async def start_monitors(log_monitors: list[LogMonitor]):
-    tasks = []
-    for monitor in log_monitors:
-        tasks.append(asyncio.create_task(monitor.start_monitoring()))
-
-    await asyncio.gather(*tasks)
-
-
-def run_log_monitor(config_path: str, es: AsyncElasticsearch):
-    configs = read_config(config_path)
-    log_monitors = []
-    for config in configs.log_configs:
-        for path in glob.glob(config.path):
-            log_monitors.append(LogMonitor(path, config.events, es))
-    asyncio.run(start_monitors(log_monitors))
