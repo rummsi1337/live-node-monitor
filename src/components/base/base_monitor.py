@@ -1,3 +1,4 @@
+from datetime import datetime
 from elasticsearch import AsyncElasticsearch
 from model import Target, TargetType
 
@@ -13,6 +14,8 @@ class BaseMonitor:
         raise NotImplementedError()
 
     async def _save_data(self, data: dict, targets: list[Target]):
+        created_at = datetime.now()
+        data.update({"created_at": created_at})
         for target in targets:
             if target.name == TargetType.ELASTICSEARCH:
                 response = await self._save_data_es(data, target.config)
