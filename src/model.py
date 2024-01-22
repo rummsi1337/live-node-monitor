@@ -10,7 +10,7 @@ class TargetType(str, Enum):
 
 
 class Target(BaseModel):
-    name: TargetType
+    type: TargetType
     config: dict[str, str]
 
 

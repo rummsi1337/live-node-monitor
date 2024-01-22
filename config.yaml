@@ -6,28 +6,28 @@ log_configs:
         regexes:
           - '\[SMRT\] (?P<content>.*)'
         targets:
-          - name: elasticsearch
+          - type: elasticsearch
             config:
               index: "log_monitor_smrt_retry"
       - name: "bazel_actions"
         regexes:
           - '\d+ actions executed. \d+ remote \d+ local'  # What if a bazel execution does not have "remote" actions? Can a regex group be optional?
         targets:
-          - name: elasticsearch
+          - type: elasticsearch
             config:
               index: "log_monitor_bazel_actions"
       - name: "error_event"
         regexes:
           - '(?P<level>ERROR|CRITICAL): (?P<message>.+)$'
         targets:
-          - name: elasticsearch
+          - type: elasticsearch
             config:
               index: "log_monitor_error_events"
       - name: "some_json_line"
         regexes:
           - 'json: (?P<json>\{.+:.+\})'
         targets:
-          - name: elasticsearch
+          - type: elasticsearch
             config:
               index: "log_monitor_json_events"
 
@@ -38,7 +38,7 @@ cmd_configs:
       - name: vmstat-oom
         command: "ls -la"
         targets:
-          - name: elasticsearch
+          - type: elasticsearch
             config:
               index: "cmd_monitor_vmstat"
       - name: ls la
@@ -46,6 +46,6 @@ cmd_configs:
         repeat: 15.0
         chdir: "/tmp"
         targets:
-          - name: elasticsearch
+          - type: elasticsearch
             config:
               index: "cmd_monitor_ls"
