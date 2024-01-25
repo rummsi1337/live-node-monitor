@@ -17,7 +17,7 @@ class BaseMonitor:
         created_at = datetime.now()
         data.update({"created_at": created_at})
         for target in targets:
-            if target.name == TargetType.ELASTICSEARCH:
+            if target.type == TargetType.ELASTICSEARCH:
                 response = await self._save_data_es(data, target.config)
                 print(response)
 
