@@ -11,7 +11,7 @@ class CommandMonitor(BaseMonitor):
         super().__init__(es)
         self.event = event
 
-    async def start_monitoring(self):
+    async def start_monitoring(self) -> None:
         while True:
             await self._execute_command()
             if self.event.repeat is None:
@@ -23,7 +23,7 @@ class CommandMonitor(BaseMonitor):
         # TODO: stop monitoring
         pass
 
-    async def _execute_command(self):
+    async def _execute_command(self) -> None:
         command = self.event.command
         if self.event.chdir is not None:
             # TODO: make sure that the chdir exists before executing command! use Pathlib
@@ -38,6 +38,10 @@ class CommandMonitor(BaseMonitor):
             print(f"[stdout]\n{stdout.decode()}")
         if stderr:
             print(f"[stderr]\n{stderr.decode()}")
-        # TODO: parse and send the result of the command
         # TODO: handle errors when executing a command
-        return stdout
+        data = self.event.model_dump(exclude={"targets"})
+        data.update(
+            {"stdout": stdout.decode("utf-8"), "stderr": stderr.decode("utf-8")}
+        )
+        await self._save_data(data, self.event.targets)
+        return
