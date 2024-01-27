@@ -26,7 +26,6 @@ class CommandMonitor(BaseMonitor):
     async def _execute_command(self) -> None:
         command = self.event.command
         if self.event.chdir is not None:
-            # TODO: make sure that the chdir exists before executing command! use Pathlib
             command = f"cd {self.event.chdir} && {self.event.command}"
 
         proc = await asyncio.create_subprocess_shell(
@@ -38,7 +37,7 @@ class CommandMonitor(BaseMonitor):
             print(f"[stdout]\n{stdout.decode()}")
         if stderr:
             print(f"[stderr]\n{stderr.decode()}")
-        # TODO: handle errors when executing a command
+
         data = self.event.model_dump(exclude={"targets"})
         data.update(
             {"stdout": stdout.decode("utf-8"), "stderr": stderr.decode("utf-8")}
