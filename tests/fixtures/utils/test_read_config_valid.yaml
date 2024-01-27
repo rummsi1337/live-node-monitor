@@ -1,0 +1,34 @@
+# yamllint disable rule:line-length
+log_configs:
+  - path: "/tmp/log.txt"
+    events:
+      - name: "log_event"
+        regexes:
+          - '(?P<content>.*)'
+        targets:
+          - type: elasticsearch
+            config:
+              index: "index"
+      - name: "number_event"
+        regexes:
+          - '\d+'
+        targets:
+          - type: elasticsearch
+            config:
+              index: "index"
+cmd_configs:
+  - events:
+      - name: show-files
+        command: "ls -la"
+        targets:
+          - type: elasticsearch
+            config:
+              index: "index"
+      - name: cat-file-periodically
+        command: "cat log.txt"
+        repeat: 15.0
+        chdir: "/tmp"
+        targets:
+          - type: elasticsearch
+            config:
+              index: "index"
