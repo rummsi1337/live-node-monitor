@@ -1,6 +1,7 @@
 from enum import Enum
+from pathlib import Path
 from typing import Any, Optional
-from pydantic import BaseModel, ConfigDict, PrivateAttr
+from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationInfo, field_validator
 
 from components.log_monitor.logparser import LogEventParser
 
@@ -43,6 +44,21 @@ class CmdMonitorEvent(BaseModel):
     repeat: Optional[float] = None
     chdir: Optional[str] = None
     model_config = ConfigDict(extra="forbid")
+
+    @field_validator("repeat")
+    @classmethod
+    def check_bigger_than_zero(cls, v: float, info: ValidationInfo) -> float:
+        if isinstance(v, float):
+            assert v > 0.0, f"{info.field_name} must be a positive non-zero value"
+        return v
+
+    @field_validator("chdir")
+    @classmethod
+    def check_dir_exists(cls, v: str, info: ValidationInfo) -> str:
+        if isinstance(v, str):
+            assert Path(v).exists(), f"{info.field_name} path does not exist"
+            assert Path(v).is_dir(), f"{info.field_name} path is not a directory"
+        return v
 
 
 class CmdMonitorConfig(BaseModel):
