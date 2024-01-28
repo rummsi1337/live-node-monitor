@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  live-node-monitor:
+    build: .
+    environment:
+      - ES_HOST=${ES_HOST}
+      - ES_USERNAME=${ES_USERNAME}
+      - ES_PASSWORD=${ES_PASSWORD}
+      - PYTHONUNBUFFERED=1
+    volumes:
+      - ./zuul-logs:/workspaces/live-node-monitor/zuul-logs
