@@ -1,6 +1,9 @@
 import json
+import logging
 import re
 from typing import Optional
+
+logger = logging.getLogger(__name__)
 
 
 class EventParser:
@@ -12,7 +15,7 @@ class EventParser:
         for pattern in self.regex_matchers:
             match = re.search(pattern, line)
             if match:
-                print(f"New event found: {self.name}")
+                logger.debug(f"New event found: {self.name}")
                 return self._parse(match)
         return None
 

@@ -1,11 +1,14 @@
 import asyncio
+import logging
 from typing import Iterator, Optional
 
 from aiofile import async_open
 from elasticsearch import AsyncElasticsearch
 
 from components.base.base_monitor import BaseMonitor
-from model import LogMonitorEvent, Target, TargetType
+from model import LogMonitorEvent
+
+logger = logging.getLogger(__name__)
 
 
 class LogMonitor(BaseMonitor):
@@ -28,10 +31,10 @@ class LogMonitor(BaseMonitor):
                 try:
                     parsed_line = await self._retrieve_line_event(line)
                     if parsed_line:
-                        print(parsed_line)
-                except Exception as e:
+                        logger.debug(parsed_line)
+                except Exception:
                     # TODO: proper exception handling. Make sure the parser can continue but properly logs the errors.
-                    print(e)
+                    logger.exception(f"Exception while parsing log line: {line}.")
 
     def stop_monitoring(self) -> None:
         # TODO: stop monitoring

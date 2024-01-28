@@ -1,8 +1,11 @@
+import logging
 from datetime import datetime
 
 from elasticsearch import AsyncElasticsearch
 
 from model import Target, TargetType
+
+logger = logging.getLogger(__name__)
 
 
 class BaseMonitor:
@@ -21,7 +24,7 @@ class BaseMonitor:
         for target in targets:
             if target.type == TargetType.ELASTICSEARCH:
                 response = await self._save_data_es(data, target.config)
-                print(response)
+                logger.debug(response)
 
     async def _save_data_es(self, data: dict, config: dict):
         # TODO: sending documents individually or sending them in bulk?
