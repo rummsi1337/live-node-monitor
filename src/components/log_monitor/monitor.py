@@ -29,9 +29,7 @@ class LogMonitor(BaseMonitor):
             # storing the last x lines in the log and moving on via sliding window
             async for line in loglines:
                 try:
-                    parsed_line = await self._retrieve_line_event(line)
-                    if parsed_line:
-                        logger.debug(parsed_line)
+                    await self._retrieve_line_event(line)
                 except Exception:
                     # TODO: proper exception handling. Make sure the parser can continue but properly logs the errors.
                     logger.exception(f"Exception while parsing log line: {line}.")
@@ -47,6 +45,7 @@ class LogMonitor(BaseMonitor):
         """
         for event in self.events:
             if result := event.parser.parse_line(line):
+                logger.info(result)
                 # TODO: also store timestamp of log, if found in log.
                 # Should be there anyways, but how to parse? timestamp format as option?
                 await self._save_data(result, event.targets)
