@@ -34,11 +34,11 @@ def run_monitors(config_path: str, es: AsyncElasticsearch):
     asyncio.run(start_monitors(monitors))
 
 
-def setup_logging(level: str):
+def setup_logging(level: int):
     format = (
         "[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s"
     )
-    logging.basicConfig(format=format, level=logging.DEBUG)
+    logging.basicConfig(format=format, level=level)
 
 
 @click.command()
