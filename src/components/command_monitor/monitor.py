@@ -1,9 +1,12 @@
 import asyncio
+import logging
 
 from elasticsearch import AsyncElasticsearch
 
 from components.base.base_monitor import BaseMonitor
 from model import CmdMonitorEvent
+
+logger = logging.getLogger(__name__)
 
 
 class CommandMonitor(BaseMonitor):
@@ -32,11 +35,11 @@ class CommandMonitor(BaseMonitor):
             command, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
         stdout, stderr = await proc.communicate()
-        print(f"[{command!r} exited with {proc.returncode}]")
+        logger.info(f"[{command!r} exited with {proc.returncode}]")
         if stdout:
-            print(f"[stdout]\n{stdout.decode()}")
+            logger.debug(f"[stdout]\n{stdout.decode()}")
         if stderr:
-            print(f"[stderr]\n{stderr.decode()}")
+            logger.debug(f"[stderr]\n{stderr.decode()}")
 
         data = self.event.model_dump(exclude={"targets"})
         data.update(
