@@ -1,8 +1,9 @@
-from typing import Iterator, Optional
 import asyncio
-from aiofile import async_open
+from typing import Iterator, Optional
 
+from aiofile import async_open
 from elasticsearch import AsyncElasticsearch
+
 from components.base.base_monitor import BaseMonitor
 from model import LogMonitorEvent, Target, TargetType
 

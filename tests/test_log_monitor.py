@@ -1,8 +1,10 @@
 import asyncio
 from unittest.mock import AsyncMock, MagicMock
-from aiofile import async_open
+
 import pytest
 import yaml
+from aiofile import async_open
+
 from components.log_monitor.monitor import LogMonitor
 from model import LogMonitorEvent
 

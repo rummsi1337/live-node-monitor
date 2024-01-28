@@ -1,6 +1,5 @@
 import pytest
 import yaml
-
 from pydantic import ValidationError
 
 from model import (

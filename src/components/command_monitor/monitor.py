@@ -1,8 +1,8 @@
 import asyncio
 
 from elasticsearch import AsyncElasticsearch
-from components.base.base_monitor import BaseMonitor
 
+from components.base.base_monitor import BaseMonitor
 from model import CmdMonitorEvent
 
 
