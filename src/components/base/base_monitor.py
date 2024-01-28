@@ -1,5 +1,7 @@
 from datetime import datetime
+
 from elasticsearch import AsyncElasticsearch
+
 from model import Target, TargetType
 
 

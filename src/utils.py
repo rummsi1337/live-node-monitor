@@ -1,4 +1,5 @@
 import yaml
+
 from model import MonitorConfigs
 
 

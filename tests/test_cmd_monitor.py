@@ -1,9 +1,10 @@
 import asyncio
 from unittest.mock import AsyncMock
+
 import pytest
 import yaml
-from components.command_monitor.monitor import CommandMonitor
 
+from components.command_monitor.monitor import CommandMonitor
 from model import CmdMonitorEvent
 
 

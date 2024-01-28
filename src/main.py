@@ -1,7 +1,10 @@
 import asyncio
 import glob
 import os
+
+import click
 from elasticsearch import AsyncElasticsearch
+
 from components.base.base_monitor import BaseMonitor
 from components.command_monitor.monitor import CommandMonitor
 from components.log_monitor.monitor import LogMonitor
