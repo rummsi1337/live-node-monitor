@@ -1,0 +1,9 @@
+.venv/
+.vscode/
+.pytest_cache/
+.github/
+.devcontainer/
+.envrc
+.envrc.template
+zuul-logs/
+tests/
