@@ -1,5 +1,7 @@
 name: yamllint
 on: push
+permissions:
+  contents: read
 jobs:
   build:
     name: yamllint
