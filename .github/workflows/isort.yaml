@@ -1,6 +1,8 @@
 # yamllint disable rule:line-length
 name: isort
 on: push
+permissions:
+  contents: read
 
 jobs:
   isort:
