@@ -1,5 +1,7 @@
 name: python-black
 on: push
+permissions:
+  contents: read
 
 jobs:
   python-black:
