@@ -15,7 +15,7 @@ from model import (
 
 def test_target_valid():
     yaml_string = f"""
-      type: {TargetType.ELASTICSEARCH}
+      type: {TargetType.ELASTICSEARCH.value}
       config:
         index: "index"
     """
