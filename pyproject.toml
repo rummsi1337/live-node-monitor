@@ -1,32 +1,30 @@
-[tool.poetry]
+[project]
 name = "live-node-monitor"
 version = "0.1.0"
 description = ""
-authors = ["Simon Rummert <09.milieu.motes@icloud.com>"]
+authors = [{name = "Simon Rummert", email = "09.milieu.motes@icloud.com"}]
 readme = "README.md"
+requires-python = ">=3.15,<4.0"
+dependencies = [
+  "pydantic>=2.5.3,<3.0.0",
+  "pyyaml>=6.0.1,<7.0.0",
+  "aiofile>=3.8.8,<4.0.0",
+  "elasticsearch[async]>=8.12.0,<9.0.0",
+  "click>=8.1.7,<9.0.0",
+]
 
-packages = [{include = "src"}]
+[dependency-groups]
+dev = [
+  "ruff>=0.17.4,<0.18.0",
+  "yamllint>=1.33.0,<2.0.0",
+  "pytest>=7.1.3,<10.0.0",
+  "pytest-asyncio>=1.0.0,<2.0.0",
+  "isort>=9.0.0,<10.0.0",
+  "pre-commit>=4.0.0,<5.0.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-pydantic = "^2.5.3"
-pyyaml = "^6.0.1"
-aiofile = "^3.8.8"
-elasticsearch = {extras = ["async"], version = "^8.12.0"}
-click = "^8.1.7"
-
-
-[tool.poetry.group.dev.dependencies]
-black = ">=24.3,<27.0"
-yamllint = "^1.33.0"
-pytest = ">=7.1.3,<10.0.0"
-pytest-asyncio = "^1.0.0"
-isort = "^9.0.0"
-pre-commit = "^4.0.0"
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+package = false
 
 [tool.pytest.ini_options]
 pythonpath = [
@@ -35,3 +33,7 @@ pythonpath = [
 
 [tool.isort]
 profile = "black"
+
+[tool.ruff.lint.per-file-ignores]
+# Tests write to the monitored log file with plain blocking IO on purpose
+"tests/**" = ["ASYNC230"]

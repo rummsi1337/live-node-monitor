@@ -1,6 +1,6 @@
 import asyncio
 import logging
-from typing import Iterator, Optional
+from collections.abc import Iterator
 
 from aiofile import async_open
 from elasticsearch import AsyncElasticsearch
@@ -38,7 +38,7 @@ class LogMonitor(BaseMonitor):
         # TODO: stop monitoring
         pass
 
-    async def _retrieve_line_event(self, line: str) -> Optional[dict]:
+    async def _retrieve_line_event(self, line: str) -> dict | None:
         """
         Find line events and parse corresponding log line.
         Return dict of line event if found, otherwise None

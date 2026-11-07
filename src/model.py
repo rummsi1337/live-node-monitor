@@ -1,6 +1,6 @@
 from enum import Enum
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, PrivateAttr, ValidationInfo, field_validator
 
@@ -23,17 +23,23 @@ class LogMonitorEvent(BaseModel):
     model_config = ConfigDict(extra="forbid")
     _parser: LogEventParser = PrivateAttr()
 
-    def model_post_init(self, __context: Any) -> None:
+    def model_post_init(self, context: Any, /) -> None:
         self._parser = LogEventParser(self.name, self.regexes)
-        return super().model_post_init(__context)
+        return super().model_post_init(context)
 
     @property
     def parser(self):
         return self._parser
 
 
+class Timestamp(BaseModel):
+    regex_group_key: str
+    string_format: str
+
+
 class LogMonitorConfig(BaseModel):
     path: str
+    timestamp: Timestamp | None = None
     events: list[LogMonitorEvent]
     model_config = ConfigDict(extra="forbid")
 
@@ -42,8 +48,8 @@ class CmdMonitorEvent(BaseModel):
     name: str
     command: str
     targets: list[Target]
-    repeat: Optional[float] = None
-    chdir: Optional[str] = None
+    repeat: float | None = None
+    chdir: str | None = None
     model_config = ConfigDict(extra="forbid")
 
     @field_validator("repeat")

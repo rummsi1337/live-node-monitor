@@ -46,4 +46,3 @@ class CommandMonitor(BaseMonitor):
             {"stdout": stdout.decode("utf-8"), "stderr": stderr.decode("utf-8")}
         )
         await self._save_data(data, self.event.targets)
-        return
