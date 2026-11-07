@@ -1,6 +1,9 @@
 # yamllint disable rule:line-length
 log_configs:
   - path: /workspaces/live-node-monitor/zuul-logs/*.log
+    timestamp:
+      regex_group_key: timestamp
+      string_format: "ladydadyda"
     events:
       - name: "smrt_event"
         regexes:

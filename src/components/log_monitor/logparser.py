@@ -1,7 +1,6 @@
 import json
 import logging
 import re
-from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -11,7 +10,7 @@ class EventParser:
         self.name = name
         self.regex_matchers = regex_matchers
 
-    def parse_line(self, line: str) -> Optional[dict]:
+    def parse_line(self, line: str) -> dict | None:
         for pattern in self.regex_matchers:
             match = re.search(pattern, line)
             if match:

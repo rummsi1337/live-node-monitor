@@ -1,11 +1,11 @@
 FROM python:3.15-slim as builder
 
-RUN pip install poetry==1.7.1
+COPY --from=ghcr.io/astral-sh/uv:0.13.7 /uv /bin/uv
 RUN mkdir -p /app
 COPY . /app
 
 WORKDIR /app
-RUN poetry install --without dev
+RUN uv sync --locked --no-dev
 
 FROM python:3.15-slim as base
 
